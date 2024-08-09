@@ -1,10 +1,17 @@
 package com.payroll.employee.service.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.payroll.employee.service.backend.enums.Designation;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(
         name = "employee_detail"
@@ -18,7 +25,7 @@ public class EmployeeEntity {
     @GeneratedValue(
             strategy = GenerationType.IDENTITY
     )
-    private int employeeId;
+    private Long employeeId;
 
     @Column(
             name="first_name",
@@ -43,7 +50,9 @@ public class EmployeeEntity {
             name = "birth_date",
             nullable = false
     )
-    private LocalDate DOB;
+
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate birthDate;
 
     @Column(nullable = false)
     private Designation role;

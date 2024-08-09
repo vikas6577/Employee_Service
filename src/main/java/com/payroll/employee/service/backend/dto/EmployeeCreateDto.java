@@ -8,9 +8,13 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class EmployeeDto extends EmployeeCreateDto {
-    private Long employeeId;
-    private String email;
+@NoArgsConstructor
+public class EmployeeCreateDto {
+    private String firstName;
+    private String lastName;
+    private String phone;
+    private LocalDate birthDate;
+    private Designation role;
+    private Long reportsTo;
 }
