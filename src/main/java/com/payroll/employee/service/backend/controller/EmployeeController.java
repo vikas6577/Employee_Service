@@ -2,12 +2,14 @@ package com.payroll.employee.service.backend.controller;
 
 import com.payroll.employee.service.backend.dto.EmployeeCreateDto;
 import com.payroll.employee.service.backend.dto.EmployeeDto;
+import com.payroll.employee.service.backend.dto.EmployeeUpdateDto;
 import com.payroll.employee.service.backend.dto.PasswordDto;
 import com.payroll.employee.service.backend.exception.ResourceNotFoundException;
 import com.payroll.employee.service.backend.service.EmployeeService;
 import lombok.extern.flogger.Flogger;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,33 +32,54 @@ public class EmployeeController {
     private EmployeeService employeeService;
 
     @GetMapping("/{id}")
-    private ResponseEntity<EmployeeDto> getEmployeeById(@PathVariable Long id)
+    private ResponseEntity<Map<String, Object>>getEmployeeById(@PathVariable Long id)
     {
-        Optional<EmployeeDto> employeeDto = employeeService.getEmployeeById(id);
-
-        return employeeDto
-                .map(dto -> new ResponseEntity<>(dto, HttpStatus.OK))  // If present, return 200 OK with the EmployeeDto
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));  // If not present, return 404 Not Found
+        Map<String, Object> response = new HashMap<>();
+        try{
+            Optional<EmployeeDto> employeeDto = employeeService.getEmployeeById(id);
+            if(employeeDto.isPresent()) {
+                response.put("message", "User Details");
+                response.put("employee", employeeDto);
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            }
+            else{
+                response.put("ërror","Employee not found for id: "+ id);
+                return new ResponseEntity<>(response,HttpStatus.NOT_FOUND);
+            }
+        }
+        catch(Exception ex){
+            response.put("error", ex.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping
-    private ResponseEntity<?> getAllEmployees() {
+    private ResponseEntity<Map<String,Object>> getAllEmployees() {
         List<EmployeeDto> employees=employeeService.getAllEmployees();
+        Map<String,Object> response=new HashMap<>();
         if(employees.isEmpty())
         {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            response.put("message","No user available");
+            return new ResponseEntity<>(response,HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(employees, HttpStatus.OK);
+        response.put("Employees",employees);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 
     @PostMapping()
     private ResponseEntity<Map<String, Object>> createEmployee(@RequestBody EmployeeCreateDto employeeCreateDto){
-        EmployeeDto employeeDto=employeeService.createEmployee(employeeCreateDto);
         Map<String, Object> response = new HashMap<>();
-        response.put("message", "User Added Successfully");
-        response.put("employee", employeeDto);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        try {
+            EmployeeDto employeeDto = employeeService.createEmployee(employeeCreateDto);
+            response.put("message", "User Added Successfully");
+            response.put("employee", employeeDto);
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+
+        } catch (IllegalArgumentException ex) {
+            response.put("error", ex.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
     }
 
     @DeleteMapping("/{id}")
@@ -82,6 +105,17 @@ public class EmployeeController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
         }
     }
+
+    @PatchMapping("/{id}/update")
+    public ResponseEntity<String> updateDetails(@PathVariable Long id, @RequestBody EmployeeUpdateDto employeeUpdateDto){
+       boolean Updated=employeeService.updateEmployee(id,employeeUpdateDto);
+        if(Updated){
+            return new ResponseEntity<>("Updated Successfully",HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>("Data Updation Failed", HttpStatus.NOT_FOUND);
+        }
+    }
+
 
 
 

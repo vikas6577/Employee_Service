@@ -3,6 +3,7 @@ package com.payroll.employee.service.backend.service;
 
 import com.payroll.employee.service.backend.dto.EmployeeCreateDto;
 import com.payroll.employee.service.backend.dto.EmployeeDto;
+import com.payroll.employee.service.backend.dto.EmployeeUpdateDto;
 import com.payroll.employee.service.backend.dto.PasswordDto;
 
 import java.util.List;
@@ -15,5 +16,5 @@ public interface EmployeeService {
     boolean deleteEmployee(Long id);
     List<EmployeeDto>getAllEmployees();
     String updatePassword(Long id, PasswordDto passwordDto);
-
+    boolean updateEmployee(Long id, EmployeeUpdateDto employeeUpdateDto);
 }
