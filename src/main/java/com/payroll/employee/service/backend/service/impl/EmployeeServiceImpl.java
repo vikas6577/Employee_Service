@@ -71,7 +71,16 @@ public class EmployeeServiceImpl implements EmployeeService {
         System.out.println("data returnded from service");
         return employeeDto;
     }
-
+    public boolean deleteEmployee(Long employeeId){
+        Optional<EmployeeEntity> employeeData= employeeRepository.findById(employeeId);
+            if(employeeData.isPresent()){
+                employeeRepository.deleteById(employeeId);
+                return true;
+            }
+            else{
+                return false;
+            }
+    }
     private EmployeeDto convertToDto(EmployeeEntity employee) {
         EmployeeDto employeeDto = new EmployeeDto();
         employeeDto.setEmployeeId(employee.getEmployeeId());
