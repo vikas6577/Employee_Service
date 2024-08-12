@@ -10,4 +10,5 @@ public interface EmployeeService {
 
     Optional<EmployeeDto> getEmployeeById(Long id);
     EmployeeDto createEmployee(EmployeeCreateDto employeeCreateDto);
+    boolean deleteEmployee(Long id);
 }
