@@ -40,41 +40,25 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public EmployeeDto createEmployee(EmployeeCreateDto employeeCreateDto) {
         Long lastEmployeeId = employeeRepository.findMaxEmployeeId();
+        Long newEmployeeId = Optional.ofNullable(lastEmployeeId).map(id -> id + 1).orElse(1L);
 
-        Long newEmployeeId = Optional.ofNullable(lastEmployeeId)
-                .map(id -> id + 1)
-                .orElse(1L);
+        String password = employeeCreateDto.getFirstName() + employeeCreateDto.getLastName() + newEmployeeId;
+        String email = employeeCreateDto.getFirstName() + "." + newEmployeeId + "." + employeeCreateDto.getLastName();
 
+        EmployeeEntity employee = EmployeeEntity.builder()
+                .employeeId(newEmployeeId)
+                .firstName(employeeCreateDto.getFirstName())
+                .lastName(employeeCreateDto.getLastName())
+                .phone(employeeCreateDto.getPhone())
+                .birthDate(employeeCreateDto.getBirthDate())
+                .role(employeeCreateDto.getRole())
+                .reportsTo(employeeCreateDto.getReportsTo())
+                .email(email)
+                .password(password)
+                .build();
 
-        log.info("Employee id is "+ newEmployeeId);
-        String firstName=employeeCreateDto.getFirstName();
-        String lastName=employeeCreateDto.getLastName();
-        log.info("Phone number is "+employeeCreateDto.getPhone());
-        String phone=employeeCreateDto.getPhone();
-
-        log.info("DOB is "+ employeeCreateDto.getBirthDate());
-        LocalDate dob=employeeCreateDto.getBirthDate();
-        Designation designation=employeeCreateDto.getRole();
-        Long reportsTo=employeeCreateDto.getReportsTo();
-        String password=firstName+lastName+newEmployeeId;
-        String email=firstName+"."+newEmployeeId+"."+lastName;
-
-        EmployeeEntity Employee= new EmployeeEntity();
-        Employee.setEmployeeId(newEmployeeId);
-        Employee.setFirstName(firstName);
-        Employee.setLastName(lastName);
-        Employee.setPhone(phone);
-        Employee.setBirthDate(dob);
-        Employee.setRole(designation);
-        Employee.setReportsTo(reportsTo);
-        Employee.setEmail(email);
-        Employee.setPassword(password);
-
-        employeeRepository.save(Employee);
-        System.out.println("Set data done");
-        EmployeeDto employeeDto = convertToDto(Employee);
-        System.out.println("data returnded from service");
-        return employeeDto;
+        employeeRepository.save(employee);
+        return convertToDto(employee);
     }
     public boolean deleteEmployee(Long employeeId){
         Optional<EmployeeEntity> employeeData= employeeRepository.findById(employeeId);
