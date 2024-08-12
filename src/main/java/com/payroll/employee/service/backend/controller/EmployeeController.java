@@ -20,9 +20,9 @@ public class EmployeeController {
     private EmployeeService employeeService;
 
     @GetMapping("/{id}")
-    private ResponseEntity<EmployeeDto> getEmployeeById(@PathVariable Long employeeId)
+    private ResponseEntity<EmployeeDto> getEmployeeById(@PathVariable Long id)
     {
-        Optional<EmployeeDto> employeeDto = employeeService.getEmployeeById(employeeId);
+        Optional<EmployeeDto> employeeDto = employeeService.getEmployeeById(id);
 
         return employeeDto
                 .map(dto -> new ResponseEntity<>(dto, HttpStatus.OK))  // If present, return 200 OK with the EmployeeDto
