@@ -10,5 +10,4 @@ import lombok.NoArgsConstructor;
 public class PasswordDto {
     private String currentPassword;
     private String newPassword;
-    private String confirmPassword;
 }
