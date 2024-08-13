@@ -10,6 +10,7 @@ import com.payroll.employee.service.backend.exception.ResourceNotFoundException;
 import com.payroll.employee.service.backend.repository.EmployeeRepository;
 import com.payroll.employee.service.backend.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,6 +29,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public Optional<EmployeeDto> getEmployeeById(Long employeeId)
     {
@@ -45,6 +49,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         Long newEmployeeId = Optional.ofNullable(lastEmployeeId).map(id -> id + 1).orElse(1L);
 
         String password = employeeCreateDto.getFirstName() + employeeCreateDto.getLastName() + newEmployeeId;
+        String encryptedPassword= passwordEncoder.encode(password);
         String email = employeeCreateDto.getFirstName() + "." + newEmployeeId + "." + employeeCreateDto.getLastName()+"@ukg.com";
 
         EmployeeEntity employee = EmployeeEntity.builder()
@@ -56,7 +61,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .role(employeeCreateDto.getRole())
                 .reportsTo(employeeCreateDto.getReportsTo())
                 .email(email)
-                .password(password)
+                .password(encryptedPassword)
                 .build();
 
         employeeRepository.save(employee);
@@ -124,9 +129,17 @@ public class EmployeeServiceImpl implements EmployeeService {
     {
         EmployeeEntity employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee not found for id: " + id));
-        validatePassword(passwordDto,employee.getPassword());
+        log.info("Employee found for id: {} ",employee );
+        // Validate the provided old password against the stored hashed password
+        if (!passwordEncoder.matches(passwordDto.getCurrentPassword(), employee.getPassword())) {
+            throw new IllegalArgumentException("Old password is incorrect");
+        }
 
-        employee.setPassword(passwordDto.getNewPassword());
+        // Encode the new password and set it
+        String encodedNewPassword = passwordEncoder.encode(passwordDto.getNewPassword());
+        employee.setPassword(encodedNewPassword);
+
+        // Save the updated employee entity
         employeeRepository.save(employee);
 
         return "Password updated successfully";

@@ -6,12 +6,17 @@ import com.payroll.employee.service.backend.dto.EmployeeUpdateDto;
 import com.payroll.employee.service.backend.dto.PasswordDto;
 import com.payroll.employee.service.backend.exception.ResourceNotFoundException;
 import com.payroll.employee.service.backend.service.EmployeeService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.flogger.Flogger;
 import org.apache.coyote.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,6 +32,8 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/v1/employee")
 public class EmployeeController {
+    private static final Logger log = LoggerFactory.getLogger(EmployeeController.class);
+
 
     @Autowired
     private EmployeeService employeeService;
@@ -67,7 +74,7 @@ public class EmployeeController {
     }
 
 
-    @PostMapping()
+    @PostMapping
     private ResponseEntity<Map<String, Object>> createEmployee(@RequestBody EmployeeCreateDto employeeCreateDto){
         Map<String, Object> response = new HashMap<>();
         try {
@@ -92,9 +99,10 @@ public class EmployeeController {
         }
     }
 
-    @PatchMapping("/employees/{id}/password")
+    @PatchMapping("/{id}/password")
     public ResponseEntity<String> updatePassword(@PathVariable Long id, @RequestBody PasswordDto passwordDto) {
         try {
+            log.info("Updating password for employee with id: " + id);
             employeeService.updatePassword(id, passwordDto);
             return ResponseEntity.ok("Password updated successfully");
         } catch (ResourceNotFoundException ex) {
