@@ -17,4 +17,5 @@ public interface EmployeeService {
     List<EmployeeDto>getAllEmployees();
     String updatePassword(Long id, PasswordDto passwordDto);
     boolean updateEmployee(Long id, EmployeeUpdateDto employeeUpdateDto);
+    List<EmployeeDto> getEmployeesUnderManager(Long managerId);
 }

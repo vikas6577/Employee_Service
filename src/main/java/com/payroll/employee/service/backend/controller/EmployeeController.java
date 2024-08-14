@@ -125,6 +125,12 @@ public class EmployeeController {
     }
 
 
+    @GetMapping("/{id}/employees")
+    public ResponseEntity<List<EmployeeDto>> getEmployeesUnderManager(@PathVariable("id") Long managerId){
+         List<EmployeeDto> employees=employeeService.getEmployeesUnderManager(managerId);
+         return ResponseEntity.ok(employees);
+    }
+
 
 
 }
