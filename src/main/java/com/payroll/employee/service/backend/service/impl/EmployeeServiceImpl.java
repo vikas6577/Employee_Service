@@ -6,6 +6,7 @@ import com.payroll.employee.service.backend.dto.EmployeeDto;
 import com.payroll.employee.service.backend.dto.EmployeeUpdateDto;
 import com.payroll.employee.service.backend.dto.PasswordDto;
 import com.payroll.employee.service.backend.entity.EmployeeEntity;
+import com.payroll.employee.service.backend.enums.Designation;
 import com.payroll.employee.service.backend.exception.ResourceNotFoundException;
 import com.payroll.employee.service.backend.repository.EmployeeRepository;
 import com.payroll.employee.service.backend.service.EmployeeService;
@@ -83,6 +84,8 @@ public class EmployeeServiceImpl implements EmployeeService {
                 return false;
             }
     }
+
+
     private EmployeeDto convertToDto(EmployeeEntity employee) {
         EmployeeDto employeeDto = new EmployeeDto();
         employeeDto.setEmployeeId(employee.getEmployeeId());
@@ -106,6 +109,26 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .collect(Collectors.toList());
 
     }
+
+    @Override
+    public List<EmployeeDto> getEmployeesUnderManager(Long managerId) {
+        if(!employeeRepository.existsByManagerID(managerId, Designation.MANAGER))
+        {
+            throw new ResourceNotFoundException("Manager not found");
+
+        }
+
+        List <EmployeeEntity> employeeEntities = employeeRepository.findAllByManagerID(managerId);
+
+        List<EmployeeDto> employeeDtoList=employeeEntities.stream().map(
+                this::convertToDto
+        ).collect(Collectors.toList());
+
+        return employeeDtoList;
+
+    }
+
+
     @Override
     public boolean updateEmployee(Long id, EmployeeUpdateDto employeeUpdateDto) {
         try {
@@ -144,6 +167,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         return "Password updated successfully";
     }
+
+
 
     private void validatePassword(PasswordDto passwordDto,String actualPassword) {
         // Example validation logic
