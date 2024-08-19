@@ -19,4 +19,5 @@ public class EmployeeCreateDto {
     private LocalDate birthDate;
     private Designation role;
     private Long reportsTo;
+    private Long salary;
 }
