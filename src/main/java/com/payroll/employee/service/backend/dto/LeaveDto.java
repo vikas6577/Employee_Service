@@ -5,11 +5,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class SalaryDto {
+public class LeaveDto {
     private Long employeeId;
-    private Long salary;
+    private Long currentLeaves;
+    private Long totalLeaves;
 }

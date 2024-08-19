@@ -26,7 +26,6 @@ public class PayrollController {
    public ResponseEntity<List<PayrollDto>>getPayrollDataOfAllEmployees()
     {
         return new ResponseEntity<List<PayrollDto>>(payrollService.getPayrollDataOfAllEmployees(), HttpStatus.OK);
-
     }
 
 }

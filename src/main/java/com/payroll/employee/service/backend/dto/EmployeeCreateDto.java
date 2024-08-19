@@ -5,13 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@SuperBuilder(toBuilder = true)
 public class EmployeeCreateDto {
     private String firstName;
     private String lastName;
@@ -19,4 +20,5 @@ public class EmployeeCreateDto {
     private LocalDate birthDate;
     private Designation role;
     private Long reportsTo;
+    private Long salary;
 }
