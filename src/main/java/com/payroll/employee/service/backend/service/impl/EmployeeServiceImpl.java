@@ -1,10 +1,7 @@
 package com.payroll.employee.service.backend.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.payroll.employee.service.backend.dto.EmployeeCreateDto;
-import com.payroll.employee.service.backend.dto.EmployeeDto;
-import com.payroll.employee.service.backend.dto.EmployeeUpdateDto;
-import com.payroll.employee.service.backend.dto.PasswordDto;
+import com.payroll.employee.service.backend.dto.*;
 import com.payroll.employee.service.backend.entity.EmployeeEntity;
 import com.payroll.employee.service.backend.enums.Designation;
 import com.payroll.employee.service.backend.exception.ResourceNotFoundException;
@@ -14,10 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.client.RestTemplate;
+
 import java.util.stream.Collectors;
 
 @Service
@@ -33,6 +33,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private RestTemplate restTemplate;
+
     @Override
     public Optional<EmployeeDto> getEmployeeById(Long employeeId)
     {
@@ -43,31 +46,53 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public EmployeeDto createEmployee(EmployeeCreateDto employeeCreateDto) {
-        if (phoneExists(employeeCreateDto.getPhone())) {
-            throw new IllegalArgumentException("Phone number already exists: " + employeeCreateDto.getPhone());
+        try {
+            if (phoneExists(employeeCreateDto.getPhone())) {
+                throw new IllegalArgumentException("Phone number already exists: " + employeeCreateDto.getPhone());
+            }
+
+            Long lastEmployeeId = employeeRepository.findMaxEmployeeId();
+            Long newEmployeeId = Optional.ofNullable(lastEmployeeId).map(id -> id + 1).orElse(1L);
+
+            String password = employeeCreateDto.getFirstName() + employeeCreateDto.getLastName() + newEmployeeId;
+            String encryptedPassword = passwordEncoder.encode(password);
+            String email = employeeCreateDto.getFirstName() + "." + newEmployeeId + "." + employeeCreateDto.getLastName() + "@ukg.com";
+
+            EmployeeEntity employee = EmployeeEntity.builder()
+                    .employeeId(newEmployeeId)
+                    .firstName(employeeCreateDto.getFirstName())
+                    .lastName(employeeCreateDto.getLastName())
+                    .phone(employeeCreateDto.getPhone())
+                    .birthDate(employeeCreateDto.getBirthDate())
+                    .role(employeeCreateDto.getRole())
+                    .reportsTo(employeeCreateDto.getReportsTo())
+                    .email(email)
+                    .password(encryptedPassword)
+                    .build();
+
+            employeeRepository.save(employee);
+
+
+            SalaryDto salaryDto = new SalaryDto(newEmployeeId, employeeCreateDto.getSalary());
+            String createSalaryUrl = "http://localhost:8081/api/v1/salaries";
+            restTemplate.postForObject(createSalaryUrl, salaryDto, Void.class);
+
+            String createLeaveUrl = "http://localhost:8081/api/v1/leaves/" + newEmployeeId;
+            restTemplate.postForObject(createLeaveUrl,null,Void.class);
+
+
+            return convertToDto(employee);
+
+        } catch (Exception e) {
+            // Print the exception to the console
+            System.err.println("Error occurred while creating employee: " + e.getMessage());
+            e.printStackTrace();
+
+            // Optionally, rethrow the exception or handle it as needed
+            throw e; // or return a custom response or null
         }
-        Long lastEmployeeId = employeeRepository.findMaxEmployeeId();
-        Long newEmployeeId = Optional.ofNullable(lastEmployeeId).map(id -> id + 1).orElse(1L);
-
-        String password = employeeCreateDto.getFirstName() + employeeCreateDto.getLastName() + newEmployeeId;
-        String encryptedPassword= passwordEncoder.encode(password);
-        String email = employeeCreateDto.getFirstName() + "." + newEmployeeId + "." + employeeCreateDto.getLastName()+"@ukg.com";
-
-        EmployeeEntity employee = EmployeeEntity.builder()
-                .employeeId(newEmployeeId)
-                .firstName(employeeCreateDto.getFirstName())
-                .lastName(employeeCreateDto.getLastName())
-                .phone(employeeCreateDto.getPhone())
-                .birthDate(employeeCreateDto.getBirthDate())
-                .role(employeeCreateDto.getRole())
-                .reportsTo(employeeCreateDto.getReportsTo())
-                .email(email)
-                .password(encryptedPassword)
-                .build();
-
-        employeeRepository.save(employee);
-        return convertToDto(employee);
     }
+
 
     private boolean phoneExists(String phone) {
         boolean phoneExist=employeeRepository.existsByPhone(phone);
