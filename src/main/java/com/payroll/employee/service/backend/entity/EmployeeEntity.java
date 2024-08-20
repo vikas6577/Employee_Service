@@ -37,11 +37,11 @@ public class EmployeeEntity {
     )
     private String lastName;
 
-    @Column(nullable = false)
+    @Column(nullable = false,unique = true)
     private String email;
 
     @Column(
-            nullable = false
+            nullable = false,unique = true
     )
     private String phone;
 
@@ -54,6 +54,7 @@ public class EmployeeEntity {
     private LocalDate birthDate;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private Designation role;
 
 
