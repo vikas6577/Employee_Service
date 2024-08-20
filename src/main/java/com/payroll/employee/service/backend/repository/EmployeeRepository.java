@@ -21,6 +21,8 @@ public interface EmployeeRepository extends JpaRepository<EmployeeEntity,Long> {
 
     boolean existsByEmail(String email);
 
+    EmployeeEntity findByEmail(String email);
+
     @Query("SELECT CASE WHEN count(e) > 0 THEN true ELSE false END FROM EmployeeEntity e WHERE e.employeeId = :managerID AND e.role = :role")
     boolean existsByManagerID(@Param("managerID") Long managerID, @Param("role") Designation role);
 
