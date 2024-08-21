@@ -6,14 +6,9 @@ import com.payroll.employee.service.backend.dto.EmployeeUpdateDto;
 import com.payroll.employee.service.backend.dto.PasswordDto;
 import com.payroll.employee.service.backend.exception.ResourceNotFoundException;
 import com.payroll.employee.service.backend.service.EmployeeService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.flogger.Flogger;
-import org.apache.coyote.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 //import org.springframework.security.web.csrf.CsrfToken;
@@ -25,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.List;
 import java.util.Optional;
 
