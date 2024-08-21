@@ -23,21 +23,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable()) // Disable CSRF
-                .authorizeHttpRequests(authorize ->
-                        authorize
-                                .requestMatchers(HttpMethod.POST, "/api/v1/login").permitAll()
-                                .requestMatchers("/error").permitAll()
-                                .anyRequest().authenticated() // Protect other requests
-                )
-                .headers(headers -> headers.frameOptions().sameOrigin()) // Allow frames from the same origin
-                .addFilterBefore(jwtFilterConfig(), UsernamePasswordAuthenticationFilter.class); // Add JWT filter
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http
+            .csrf(csrf -> csrf.disable()) // Disable CSRF
+            .authorizeHttpRequests(authorize ->
+                    authorize
+                            .anyRequest().permitAll() // Allow all requests without authentication
+            );
 
-        // Disable httpBasic if you're planning to use JWT
-        return http.build();
-    }
+    return http.build();
+}
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -49,8 +44,5 @@ public class SecurityConfig {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-    @Bean
-    public JwtFilterConfig jwtFilterConfig() {
-        return new JwtFilterConfig();
-    }
+
 }
