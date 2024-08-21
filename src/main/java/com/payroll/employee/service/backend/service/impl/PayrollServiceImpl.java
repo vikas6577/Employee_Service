@@ -33,8 +33,8 @@ public class PayrollServiceImpl implements PayrollService {
     public List<PayrollDto> getPayrollDataOfAllEmployees() {
         logger.info("Starting to fetch payroll data for all employees.");
 
-        String leaveUrl = "http://localhost:8081/api/v1/leaves";
-        String salaryUrl = "http://localhost:8081/api/v1/salaries";
+        String leaveUrl = "http://COMPENSATION-SERVICE/api/v1/leaves";
+        String salaryUrl = "http://COMPENSATION-SERVICE/api/v1/salaries";
 
         List<LeaveDto> leaveDtos = getAllEmployeesLeaves(leaveUrl);
         List<SalaryDto> salaryDtos = getAllEmployeesSalary(salaryUrl);
