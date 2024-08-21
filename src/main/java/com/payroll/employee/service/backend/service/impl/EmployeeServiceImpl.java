@@ -74,10 +74,10 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 
             SalaryDto salaryDto = new SalaryDto(newEmployeeId, employeeCreateDto.getSalary());
-            String createSalaryUrl = "http://localhost:8081/api/v1/salaries";
+            String createSalaryUrl = "http://COMPENSATION-SERVICE/api/v1/salaries";
             restTemplate.postForObject(createSalaryUrl, salaryDto, Void.class);
 
-            String createLeaveUrl = "http://localhost:8081/api/v1/leaves/" + newEmployeeId;
+            String createLeaveUrl = "http://COMPENSATION-SERVICE/api/v1/leaves/" + newEmployeeId;
             restTemplate.postForObject(createLeaveUrl,null,Void.class);
 
 
